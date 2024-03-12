@@ -7,7 +7,6 @@ const companySchema = mongoose.Schema(
     },
     location: {
       type: String,
-      required: [true, 'A Company Must have a location'],
     },
   },
 );

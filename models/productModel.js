@@ -8,6 +8,12 @@ const productSchema = mongoose.Schema({
     type: String,
     default: 'bori',
   },
+  buyer_percentage : {
+    type: Number,
+  },
+  seller_percentage : {
+    type: Number,
+  }
 });
 const Product = mongoose.model('Product', productSchema);
 module.exports = Product;
