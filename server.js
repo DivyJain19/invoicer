@@ -9,10 +9,7 @@ const entryRoutes = require('./routes/entryRoutes');
 const { notFound, errorHandler } = require('./middlewares/errorMiddleware');
 const cors = require('cors');
 dotenv.config();
-const DB = process.env.DATABASE.replace(
-  '<PASSWORD>',
-  process.env.DATABASE_PASSWORD
-);
+const DB = process.env.DATABASE;
 mongoose
   .connect(DB, {
     useNewUrlParser: true,
@@ -25,6 +22,9 @@ mongoose
 app.use(cors());
 app.use(express.json());
 
+app.use("/" , (req,res) => {
+  res.send("Server is Running")
+})
 app.use('/api/users', userRoutes);
 app.use('/api/company', companyRoutes);
 app.use('/api/product', productRoutes);
