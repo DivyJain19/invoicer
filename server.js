@@ -5,6 +5,7 @@ const dotenv = require('dotenv');
 const userRoutes = require('./routes/userRoutes');
 const companyRoutes = require('./routes/companyRoutes');
 const productRoutes = require('./routes/productRoutes');
+const entryRoutes = require('./routes/entryRoutes');
 const { notFound, errorHandler } = require('./middlewares/errorMiddleware');
 const cors = require('cors');
 dotenv.config();
@@ -27,6 +28,7 @@ app.use(express.json());
 app.use('/api/users', userRoutes);
 app.use('/api/company', companyRoutes);
 app.use('/api/product', productRoutes);
+app.use('/api/entry', entryRoutes);
 app.use(notFound);
 app.use(errorHandler);
 
