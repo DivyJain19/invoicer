@@ -159,6 +159,7 @@ exports.generateInvoice = asyncHandler(async (req, res) => {
     const company = req.params.company;
     const browser = await puppeteer.launch({
       args: ['--no-sandbox', '--disable-setuid-sandbox'],
+      executablePath: `/usr/bin/google-chrome`,
       headless: 'new',
     });
     let entryList = [];
