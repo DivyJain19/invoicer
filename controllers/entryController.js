@@ -154,6 +154,50 @@ exports.getLastEntryDate = asyncHandler(async (req, res) => {
     throw new Error('Error Occoured');
   }
 });
+exports.getLastBuyer = asyncHandler(async (req, res) => {
+  try {
+    const entry = await Entry.find().limit(1).sort({ $natural: -1 });
+    if (entry) {
+      res.status(201).json({
+        data: {
+          buyerName: entry?.[0]?.buyer_name,
+        },
+      });
+    } else {
+      res.status(400).json({
+        data: {
+          message: 'No Buyer Found',
+        },
+      });
+    }
+  } catch (err) {
+    console.log(err);
+    res.status(400);
+    throw new Error('Error Occoured');
+  }
+});
+exports.getLastSeller = asyncHandler(async (req, res) => {
+  try {
+    const entry = await Entry.find().limit(1).sort({ $natural: -1 });
+    if (entry) {
+      res.status(201).json({
+        data: {
+          sellerName: entry?.[0]?.seller_name,
+        },
+      });
+    } else {
+      res.status(400).json({
+        data: {
+          message: 'No Entries Found',
+        },
+      });
+    }
+  } catch (err) {
+    console.log(err);
+    res.status(400);
+    throw new Error('Error Occoured');
+  }
+});
 exports.generateInvoice = asyncHandler(async (req, res) => {
   try {
     const company = req.params.company;
