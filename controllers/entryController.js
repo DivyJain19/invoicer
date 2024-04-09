@@ -50,7 +50,60 @@ exports.getEntryCompany = asyncHandler(async (req, res) => {
     let entryList = [];
     const respnse = await Entry.find({
       $or: [{ buyer_name: company }, { seller_name: company }],
-    });
+    }).sort({ entry_date: 1 });
+    if (res) {
+      respnse?.forEach((item) => {
+        item?.lineitems.forEach((product) => {
+          entryList.push({
+            id: product._id,
+            entryId: item?._id,
+            date: item?.entry_date,
+            buyer_name: item?.buyer_name,
+            seller_name: item?.seller_name,
+            product: product?.product_name,
+            quantity: product?.product_quantity,
+            price: product?.price,
+            amount: product?.amount,
+            brokerage:
+              item?.buyer_name === company
+                ? product?.buyer_brokerage
+                : product?.seller_brokerage,
+          });
+        });
+      });
+    }
+    // console.log(entryList)
+    if (entryList.length > 0) {
+      res.status(201).json({
+        status: 'Success',
+        results: entryList.length,
+        data: {
+          entryList,
+        },
+      });
+    } else {
+      res.status(201);
+      res.json({
+        message: 'No Entries Found!',
+      });
+    }
+  } catch (err) {
+    console.log(err);
+    res.status(400);
+    throw new Error('Error Occoured');
+  }
+});
+exports.getEntryCompanyByDate = asyncHandler(async (req, res) => {
+  try {
+    const { company, fromDate, toDate } = req.body;
+    let entryList = [];
+    const respnse = await Entry.find({
+      $or: [{ buyer_name: company }, { seller_name: company }],
+      entry_date: {
+        $gte: fromDate, // Greater than or equal to fromDate
+        $lte: toDate, // Less than or equal to toDate
+      },
+    }).sort({ entry_date: 1 });
     if (res) {
       respnse?.forEach((item) => {
         item?.lineitems.forEach((product) => {
@@ -743,6 +796,78 @@ exports.getEntryByDate = asyncHandler(async (req, res) => {
     res.json({
       respnse,
     });
+  } catch (err) {
+    console.log(err);
+    res.status(400);
+    throw new Error('Error Occoured');
+  }
+});
+exports.getTotalEntries = asyncHandler(async (req, res) => {
+  try {
+    const respnse = await Entry.find();
+    console.log(respnse);
+    if (respnse.length > 0) {
+      res.status(201).json({
+        status: 'Success',
+        data: {
+          noOfEntries: respnse.length,
+        },
+      });
+    } else {
+      res.status(201);
+      res.json({
+        message: 'No Entries Found!',
+      });
+    }
+  } catch (err) {
+    console.log(err);
+    res.status(400);
+    throw new Error('Error Occoured');
+  }
+});
+exports.getAllEntriesByDate = asyncHandler(async (req, res) => {
+  try {
+    const { fromDate, toDate } = req.body;
+    let entryList = [];
+    const respnse = await Entry.find({
+      entry_date: {
+        $gte: fromDate, // Greater than or equal to fromDate
+        $lte: toDate, // Less than or equal to toDate
+      },
+    }).sort({ entry_date: 1 });
+    if (res) {
+      respnse?.forEach((item) => {
+        item?.lineitems.forEach((product) => {
+          entryList.push({
+            id: product._id,
+            entryId: item?._id,
+            date: item?.entry_date,
+            buyer_name: item?.buyer_name,
+            seller_name: item?.seller_name,
+            product: product?.product_name,
+            quantity: product?.product_quantity,
+            price: product?.price,
+            amount: product?.amount,
+            brokerage: product?.buyer_brokerage,
+          });
+        });
+      });
+    }
+    // console.log(entryList)
+    if (entryList.length > 0) {
+      res.status(201).json({
+        status: 'Success',
+        results: entryList.length,
+        data: {
+          entryList,
+        },
+      });
+    } else {
+      res.status(201);
+      res.json({
+        message: 'No Entries Found!',
+      });
+    }
   } catch (err) {
     console.log(err);
     res.status(400);
