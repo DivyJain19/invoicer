@@ -208,7 +208,7 @@ exports.generateInvoice = asyncHandler(async (req, res) => {
     let entryList = [];
     const respnse = await Entry.find({
       $or: [{ buyer_name: company }, { seller_name: company }],
-    });
+    }).sort({ entry_date: 1 });
 
     const dateObj = new Date();
     const options = { day: '2-digit', month: '2-digit', year: 'numeric' };
@@ -475,7 +475,7 @@ exports.generateInvoiceByDate = asyncHandler(async (req, res) => {
         $gte: fromDate, // Greater than or equal to fromDate
         $lte: toDate, // Less than or equal to toDate
       },
-    });
+    }).sort({ entry_date: 1 });
 
     const dateObj = new Date();
     const options = { day: '2-digit', month: '2-digit', year: 'numeric' };
@@ -717,8 +717,32 @@ exports.generateInvoiceByDate = asyncHandler(async (req, res) => {
     });
 
     await browser.close();
-    res.setHeader('Content-Disposition', `attachment; filename=invoice_.pdf`);
+    res.setHeader(
+      'Content-Disposition',
+      `attachment; filename=${req.params.company}_invoice_.pdf`
+    );
     res.send(pdfBuffer);
+  } catch (err) {
+    console.log(err);
+    res.status(400);
+    throw new Error('Error Occoured');
+  }
+});
+exports.getEntryByDate = asyncHandler(async (req, res) => {
+  try {
+    const entryDate = req.body.date;
+    console.log(entryDate);
+    let entryList = [];
+    const respnse = await Entry.find({
+      entry_date: {
+        $eq: entryDate,
+      },
+    });
+    console.log(respnse.length);
+
+    res.json({
+      respnse,
+    });
   } catch (err) {
     console.log(err);
     res.status(400);

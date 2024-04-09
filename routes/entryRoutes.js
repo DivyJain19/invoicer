@@ -10,5 +10,6 @@ router.route('/getLastSeller').get(entryController.getLastSeller);
 router.route('/deleteEntry/:id/:entryId').delete(entryController.deleteEntry);
 router.route('/generateInvoice/:company').get(entryController.generateInvoice);
 router.route('/generateInvoice/:company/:fromDate/:toDate').get(entryController.generateInvoiceByDate);
+router.route('/getEntryByDate').get(entryController.getEntryByDate);
 
 module.exports = router;
