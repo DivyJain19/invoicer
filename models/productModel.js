@@ -13,7 +13,11 @@ const productSchema = mongoose.Schema({
   },
   seller_percentage : {
     type: Number,
-  }
+  },
+  userId: {
+    type: String,
+    required: [true, 'User ID is Required'],
+  },
 });
 const Product = mongoose.model('Product', productSchema);
 module.exports = Product;

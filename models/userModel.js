@@ -15,6 +15,11 @@ const userSchema = mongoose.Schema(
       type: String,
       required: [true, 'A User Must have a password'],
     },
+    userId: {
+      type: String,
+      unique: true,
+      required: [true, 'User Id is Required'],
+    },
   },
   {
     timestams: true,

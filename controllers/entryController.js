@@ -1,10 +1,12 @@
 const asyncHandler = require('express-async-handler');
 const Entry = require('../models/entryModel');
+const Product = require('../models/productModel');
 const puppeteer = require('puppeteer');
 const { formatDate } = require('../utils/helper');
 
 exports.addEntry = asyncHandler(async (req, res) => {
   const { buyer_name, seller_name, entryDate, entries } = req.body;
+  const userId = req?.params?.userId;
   try {
     let arr = [];
     entries?.forEach((item) => {
@@ -25,6 +27,7 @@ exports.addEntry = asyncHandler(async (req, res) => {
       seller_name,
       entry_date: entryDate,
       lineitems: arr,
+      userId,
     });
     if (entry) {
       res.status(201).json({
@@ -47,9 +50,16 @@ exports.addEntry = asyncHandler(async (req, res) => {
 exports.getEntryCompany = asyncHandler(async (req, res) => {
   try {
     const { company } = req.body;
+    const userId = req?.params?.userId;
+
     let entryList = [];
     const respnse = await Entry.find({
-      $or: [{ buyer_name: company }, { seller_name: company }],
+      $and: [
+        {
+          $or: [{ buyer_name: company }, { seller_name: company }],
+        },
+        { userId: userId },
+      ],
     }).sort({ entry_date: 1 });
     if (res) {
       respnse?.forEach((item) => {
@@ -96,6 +106,7 @@ exports.getEntryCompany = asyncHandler(async (req, res) => {
 exports.getEntryCompanyByDate = asyncHandler(async (req, res) => {
   try {
     const { company, fromDate, toDate } = req.body;
+    const userId = req?.params?.userId;
     let entryList = [];
     const respnse = await Entry.find({
       $or: [{ buyer_name: company }, { seller_name: company }],
@@ -103,6 +114,7 @@ exports.getEntryCompanyByDate = asyncHandler(async (req, res) => {
         $gte: fromDate, // Greater than or equal to fromDate
         $lte: toDate, // Less than or equal to toDate
       },
+      userId: userId,
     }).sort({ entry_date: 1 });
     if (res) {
       respnse?.forEach((item) => {
@@ -150,14 +162,18 @@ exports.deleteEntry = asyncHandler(async (req, res) => {
   try {
     const entryId = req.params.entryId;
     const id = req.params.id;
-    const entry = await Entry.findOne({ _id: entryId });
+    const userId = req?.params?.userId;
+    const entry = await Entry.findOne({ _id: entryId, userId });
     if (entry) {
       const cleanEntry = JSON.parse(JSON.stringify(entry));
       const lineItems = cleanEntry?.lineitems;
       const updatedLineItems = lineItems.filter((item) => item?._id !== id);
       const updatedObj = { ...cleanEntry, lineitems: updatedLineItems };
       if (updatedObj?.lineitems?.length === 0) {
-        const deletedEntry = await Entry.findOneAndDelete({ _id: entryId });
+        const deletedEntry = await Entry.findOneAndDelete({
+          _id: entryId,
+          userId,
+        });
         if (deletedEntry) {
           res.status(204).json({
             status: 'Success',
@@ -166,7 +182,7 @@ exports.deleteEntry = asyncHandler(async (req, res) => {
         }
       } else {
         const deletedEntry = await Entry.findOneAndUpdate(
-          { _id: entryId },
+          { _id: entryId, userId },
           updatedObj
         );
         if (deletedEntry) {
@@ -186,8 +202,9 @@ exports.deleteEntry = asyncHandler(async (req, res) => {
   }
 });
 exports.getLastEntryDate = asyncHandler(async (req, res) => {
+  const userId = req?.params?.userId;
   try {
-    const entry = await Entry.find().limit(1).sort({ $natural: -1 });
+    const entry = await Entry.find({ userId }).limit(1).sort({ $natural: -1 });
     if (entry) {
       res.status(201).json({
         data: {
@@ -208,8 +225,9 @@ exports.getLastEntryDate = asyncHandler(async (req, res) => {
   }
 });
 exports.getLastBuyer = asyncHandler(async (req, res) => {
+  const userId = req?.params?.userId;
   try {
-    const entry = await Entry.find().limit(1).sort({ $natural: -1 });
+    const entry = await Entry.find({ userId }).limit(1).sort({ $natural: -1 });
     if (entry) {
       res.status(201).json({
         data: {
@@ -230,8 +248,9 @@ exports.getLastBuyer = asyncHandler(async (req, res) => {
   }
 });
 exports.getLastSeller = asyncHandler(async (req, res) => {
+  const userId = req?.params?.userId;
   try {
-    const entry = await Entry.find().limit(1).sort({ $natural: -1 });
+    const entry = await Entry.find({ userId }).limit(1).sort({ $natural: -1 });
     if (entry) {
       res.status(201).json({
         data: {
@@ -254,6 +273,7 @@ exports.getLastSeller = asyncHandler(async (req, res) => {
 exports.generateInvoice = asyncHandler(async (req, res) => {
   try {
     const company = req.params.company;
+    const userId = req?.params?.userId;
     const browser = await puppeteer.launch({
       args: ['--no-sandbox', '--disable-setuid-sandbox'],
       headless: 'new',
@@ -261,6 +281,7 @@ exports.generateInvoice = asyncHandler(async (req, res) => {
     let entryList = [];
     const respnse = await Entry.find({
       $or: [{ buyer_name: company }, { seller_name: company }],
+      userId,
     }).sort({ entry_date: 1 });
 
     const dateObj = new Date();
@@ -514,6 +535,7 @@ exports.generateInvoiceByDate = asyncHandler(async (req, res) => {
   try {
     const fromDate = req.params.fromDate;
     const toDate = req.params.toDate;
+    const userId = req?.params?.userId;
     console.log(fromDate);
     console.log(toDate);
     const company = req.params.company;
@@ -528,6 +550,7 @@ exports.generateInvoiceByDate = asyncHandler(async (req, res) => {
         $gte: fromDate, // Greater than or equal to fromDate
         $lte: toDate, // Less than or equal to toDate
       },
+      userId,
     }).sort({ entry_date: 1 });
 
     const dateObj = new Date();
@@ -784,12 +807,15 @@ exports.generateInvoiceByDate = asyncHandler(async (req, res) => {
 exports.getEntryByDate = asyncHandler(async (req, res) => {
   try {
     const entryDate = req.body.date;
+    const userId = req?.params?.userId;
+
     console.log(entryDate);
     let entryList = [];
     const respnse = await Entry.find({
       entry_date: {
         $eq: entryDate,
       },
+      userId,
     });
     console.log(respnse.length);
 
@@ -804,7 +830,9 @@ exports.getEntryByDate = asyncHandler(async (req, res) => {
 });
 exports.getTotalEntries = asyncHandler(async (req, res) => {
   try {
-    const respnse = await Entry.find();
+    const userId = req?.params?.userId;
+
+    const respnse = await Entry.find({ userId });
     console.log(respnse);
     if (respnse.length > 0) {
       res.status(201).json({
@@ -827,6 +855,8 @@ exports.getTotalEntries = asyncHandler(async (req, res) => {
 });
 exports.getAllEntriesByDate = asyncHandler(async (req, res) => {
   try {
+    const userId = req?.params?.userId;
+
     const { fromDate, toDate } = req.body;
     let entryList = [];
     const respnse = await Entry.find({
@@ -834,6 +864,7 @@ exports.getAllEntriesByDate = asyncHandler(async (req, res) => {
         $gte: fromDate, // Greater than or equal to fromDate
         $lte: toDate, // Less than or equal to toDate
       },
+      userId,
     }).sort({ entry_date: 1 });
     if (res) {
       respnse?.forEach((item) => {
@@ -868,6 +899,18 @@ exports.getAllEntriesByDate = asyncHandler(async (req, res) => {
         message: 'No Entries Found!',
       });
     }
+  } catch (err) {
+    console.log(err);
+    res.status(400);
+    throw new Error('Error Occoured');
+  }
+});
+exports.addUserInAllDocs = asyncHandler(async (req, res) => {
+  try {
+    const userId = req?.params?.userId;
+    const result = await Product.updateMany({}, { $set: { userId: userId } });
+    console.log(result);
+    res.json({result})
   } catch (err) {
     console.log(err);
     res.status(400);

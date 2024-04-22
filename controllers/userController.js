@@ -1,6 +1,7 @@
 const asyncHandler = require('express-async-handler');
 const User = require('../models/userModel');
 const generateToken = require('../utils/generateToken');
+const crypto = require('crypto');
 
 exports.registerUser = asyncHandler(async (req, res) => {
   const { name, email, password } = req.body;
@@ -14,12 +15,14 @@ exports.registerUser = asyncHandler(async (req, res) => {
       name,
       email,
       password,
+      userId: crypto.randomBytes(16).toString('hex'),
     });
     if (user) {
       res.status(201).json({
         _id: user._id,
         name: user.name,
         email: user.email,
+        userId: user.userId,
         token: generateToken(user._id),
       });
     } else {
@@ -37,6 +40,7 @@ exports.authUser = asyncHandler(async (req, res) => {
       _id: user._id,
       name: user.name,
       email: user.email,
+      userId: user.userId,
       token: generateToken(user._id),
     });
   } else {

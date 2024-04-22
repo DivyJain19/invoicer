@@ -40,6 +40,10 @@ const entrySchema = mongoose.Schema({
     type: Date,
     required: [true, 'Entry Date is required'],
   },
+  userId: {
+    type: String,
+    required: [true, 'User ID is Required'],
+  },
   createdAt: {
     type: Date,
     default: new Date(),

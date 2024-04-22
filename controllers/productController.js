@@ -3,12 +3,14 @@ const Product = require('../models/productModel');
 
 exports.addProduct = asyncHandler(async (req, res) => {
   const { product_name, unit, buyer_percentage, seller_percentage } = req.body;
+  const userId = req?.params?.userId;
+
   if (!product_name) {
     res.status(400);
     throw new Error('Please provide a Product name');
   }
   try {
-    const productExists = await Product.findOne({ product_name });
+    const productExists = await Product.findOne({ product_name, userId });
     if (productExists) {
       res.status(400);
       res.json({
@@ -21,6 +23,7 @@ exports.addProduct = asyncHandler(async (req, res) => {
           unit: unit ? unit : 'Bori',
           buyer_percentage: buyer_percentage || 0,
           seller_percentage: seller_percentage || 0,
+          userId,
         });
         if (product) {
           res.status(201).json({
@@ -44,6 +47,8 @@ exports.addProduct = asyncHandler(async (req, res) => {
 
 exports.editProduct = asyncHandler(async (req, res) => {
   const { product_name, unit, buyer_percentage, seller_percentage } = req.body;
+  const userId = req?.params?.userId;
+
   const id = req.params.product_id;
   if (!product_name) {
     res.status(400);
@@ -53,6 +58,7 @@ exports.editProduct = asyncHandler(async (req, res) => {
     const productExists = await Product.findOne({
       product_name,
       _id: { $ne: id },
+      userId,
     });
 
     if (productExists) {
@@ -69,6 +75,7 @@ exports.editProduct = asyncHandler(async (req, res) => {
             unit: unit ? unit : 'Bori',
             buyer_percentage: buyer_percentage || 0,
             seller_percentage: seller_percentage || 0,
+            userId,
           }
         );
         if (product) {
@@ -93,7 +100,9 @@ exports.editProduct = asyncHandler(async (req, res) => {
 
 exports.getProductList = asyncHandler(async (req, res) => {
   try {
-    const productList = await Product.find()
+    const userId = req?.params?.userId;
+
+    const productList = await Product.find({ userId })
       .select('-__v')
       .sort({ product_name: 1 });
     if (productList && productList.length > 0) {
