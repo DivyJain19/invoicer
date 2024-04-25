@@ -27,8 +27,5 @@ router
   .route('/getAllEntriesByDate/:userId')
   .post(entryController.getAllEntriesByDate);
 
-  router
-  .route('/addUserInAllDocs/:userId')
-  .post(entryController.addUserInAllDocs);
 
 module.exports = router;

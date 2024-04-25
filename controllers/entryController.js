@@ -1,7 +1,6 @@
 const asyncHandler = require('express-async-handler');
 const Entry = require('../models/entryModel');
 const Product = require('../models/productModel');
-const puppeteer = require('puppeteer');
 const { formatDate } = require('../utils/helper');
 const html_to_pdf = require('html-pdf-node');
 
@@ -509,7 +508,6 @@ exports.generateInvoice = asyncHandler(async (req, res) => {
     html_to_pdf
       .generatePdf(file, pdfOptions)
       .then((pdfBuffer) => {
-        console.log('PDF Buffer:-', pdfBuffer);
         res.setHeader(
           'Content-Disposition',
           `attachment; filename=${req.params.company}_invoice_.pdf`
@@ -775,7 +773,6 @@ exports.generateInvoiceByDate = asyncHandler(async (req, res) => {
     html_to_pdf
       .generatePdf(file, pdfOptions)
       .then((pdfBuffer) => {
-        console.log('PDF Buffer:-', pdfBuffer);
         res.setHeader(
           'Content-Disposition',
           `attachment; filename=${req.params.company}_invoice_.pdf`
@@ -895,18 +892,7 @@ exports.getAllEntriesByDate = asyncHandler(async (req, res) => {
     throw new Error('Error Occoured');
   }
 });
-exports.addUserInAllDocs = asyncHandler(async (req, res) => {
-  try {
-    const userId = req?.params?.userId;
-    const result = await Product.updateMany({}, { $set: { userId: userId } });
-    console.log(result);
-    res.json({ result });
-  } catch (err) {
-    console.log(err);
-    res.status(400);
-    throw new Error('Error Occoured');
-  }
-});
+
 // exports.generateInvoice = asyncHandler(async (req, res) => {
 //   try {
 //     const company = req.params.company;
