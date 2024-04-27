@@ -274,6 +274,7 @@ exports.generateInvoice = asyncHandler(async (req, res) => {
   try {
     const company = req.params.company;
     const userId = req?.params?.userId;
+    const invoiceDetails = req?.body?.invoiceDetails;
     let entryList = [];
     const respnse = await Entry.find({
       $or: [{ buyer_name: company }, { seller_name: company }],
@@ -389,10 +390,26 @@ exports.generateInvoice = asyncHandler(async (req, res) => {
           <div>
             <div style="text-align: center">
               <p>|| Shree Mahaviray Namah ||</p>
-              <p>Chandresh Jain</p>
-              <p>612, KALANI NAGAR, AERODROME ROAD INDORE (M.P)</p>
-              <p>Phone: 09827022428</p>
-              <p>PAN NO - ABBPJ7941H</p>
+              <p>${
+                invoiceDetails?.name?.length > 0
+                  ? invoiceDetails?.name
+                  : 'Chandresh Jain'
+              }</p>
+              <p>${
+                invoiceDetails?.address?.length > 0
+                  ? invoiceDetails?.address
+                  : '612, KALANI NAGAR, AERODROME ROAD INDORE (M.P)'
+              }</p>
+              <p>Phone: ${
+                invoiceDetails?.phone?.length > 0
+                  ? invoiceDetails?.phone
+                  : '09827022428'
+              }</p>
+              <p>PAN NO - ${
+                invoiceDetails?.pan?.length > 0
+                  ? invoiceDetails?.pan?.toUpperCase()
+                  : 'ABBPJ7941H'
+              }</p>
             </div>
             <div style="display: flex; justify-content: center; margin-top: 1rem">
               <p style="text-decoration: underline">BROKERAGE BILL</p>
@@ -531,6 +548,8 @@ exports.generateInvoiceByDate = asyncHandler(async (req, res) => {
     const fromDate = req.params.fromDate;
     const toDate = req.params.toDate;
     const userId = req?.params?.userId;
+    const invoiceDetails = req?.body?.invoiceDetails;
+
     console.log(fromDate);
     console.log(toDate);
     const company = req.params.company;
@@ -654,10 +673,26 @@ exports.generateInvoiceByDate = asyncHandler(async (req, res) => {
           <div>
             <div style="text-align: center">
               <p>|| Shree Mahaviray Namah ||</p>
-              <p>Chandresh Jain</p>
-              <p>612, KALANI NAGAR, AERODROME ROAD INDORE (M.P)</p>
-              <p>Phone: 09827022428</p>
-              <p>PAN NO - ABBPJ7941H</p>
+              <p>${
+                invoiceDetails?.name?.length > 0
+                  ? invoiceDetails?.name
+                  : 'Chandresh Jain'
+              }</p>
+              <p>${
+                invoiceDetails?.address?.length > 0
+                  ? invoiceDetails?.address
+                  : '612, KALANI NAGAR, AERODROME ROAD INDORE (M.P)'
+              }</p>
+              <p>Phone: ${
+                invoiceDetails?.phone?.length > 0
+                  ? invoiceDetails?.phone
+                  : '09827022428'
+              }</p>
+              <p>PAN NO - ${
+                invoiceDetails?.pan?.length > 0
+                  ? invoiceDetails?.pan?.toUpperCase()
+                  : 'ABBPJ7941H'
+              }</p>
             </div>
             <div style="display: flex; justify-content: center; margin-top: 1rem">
               <p style="text-decoration: underline">BROKERAGE BILL</p>
@@ -820,7 +855,6 @@ exports.getTotalEntries = asyncHandler(async (req, res) => {
     const userId = req?.params?.userId;
 
     const respnse = await Entry.find({ userId });
-    console.log(respnse);
     if (respnse.length > 0) {
       res.status(201).json({
         status: 'Success',

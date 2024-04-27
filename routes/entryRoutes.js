@@ -17,10 +17,10 @@ router
   .delete(entryController.deleteEntry);
 router
   .route('/generateInvoice/:company/:userId')
-  .get(entryController.generateInvoice);
+  .post(entryController.generateInvoice);
 router
   .route('/generateInvoice/:company/:fromDate/:toDate/:userId')
-  .get(entryController.generateInvoiceByDate);
+  .post(entryController.generateInvoiceByDate);
 router.route('/getEntryByDate/:userId').get(entryController.getEntryByDate);
 router.route('/getTotalEntries/:userId').get(entryController.getTotalEntries);
 router
