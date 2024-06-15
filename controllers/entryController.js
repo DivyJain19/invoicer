@@ -284,8 +284,7 @@ exports.generateInvoice = asyncHandler(async (req, res) => {
     const dateObj = new Date();
     const options = { day: '2-digit', month: '2-digit', year: 'numeric' };
     const formattedDate = dateObj.toLocaleDateString('en-GB', options);
-
-    if (res) {
+    if (respnse?.length > 0) {
       respnse?.forEach((item) => {
         item?.lineitems.forEach((product) => {
           entryList.push({
@@ -510,7 +509,17 @@ exports.generateInvoice = asyncHandler(async (req, res) => {
                 </td>
               </tr>`
                 )
-                .join('')}                                
+                .join('')}   
+              <tr>
+                <td colspan="5"><b>Total</b></td>
+                <td>₹${
+                  entryList?.length > 0
+                    ? entryList?.reduce((total, entry) => {
+                        return total + entry.brokerage;
+                      }, 0)
+                    : 0
+                }</td>
+              </tr>                             
             </tbody>
           </table>
         </div>
@@ -549,9 +558,6 @@ exports.generateInvoiceByDate = asyncHandler(async (req, res) => {
     const toDate = req.params.toDate;
     const userId = req?.params?.userId;
     const invoiceDetails = req?.body?.invoiceDetails;
-
-    console.log(fromDate);
-    console.log(toDate);
     const company = req.params.company;
     let entryList = [];
     const respnse = await Entry.find({
@@ -567,7 +573,7 @@ exports.generateInvoiceByDate = asyncHandler(async (req, res) => {
     const options = { day: '2-digit', month: '2-digit', year: 'numeric' };
     const formattedDate = dateObj.toLocaleDateString('en-GB', options);
 
-    if (res) {
+    if (respnse?.length > 0) {
       respnse?.forEach((item) => {
         item?.lineitems.forEach((product) => {
           entryList.push({
@@ -793,7 +799,17 @@ exports.generateInvoiceByDate = asyncHandler(async (req, res) => {
                 </td>
               </tr>`
                 )
-                .join('')}                                
+                .join('')}  
+              <tr>
+                <td colspan="5"><b>Total</b></td>
+                <td>₹${
+                  entryList?.length > 0
+                    ? entryList?.reduce((total, entry) => {
+                        return total + entry.brokerage;
+                      }, 0)
+                    : 0
+                }</td>
+              </tr>                                
             </tbody>
           </table>
         </div>
